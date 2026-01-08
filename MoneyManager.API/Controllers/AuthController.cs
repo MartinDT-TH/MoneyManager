@@ -2,49 +2,44 @@
 using MoneyManager.Application.DTOs.Auth;
 using MoneyManager.Application.Interfaces;
 
-namespace MoneyManager.API.Controllers
+namespace MoneyManager.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
     {
-        private readonly IAuthService _authService;
+        _authService = authService;
+    }
 
-        public AuthController(IAuthService authService)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        try
         {
-            _authService = authService;
+            var result = await _authService.RegisterAsync(request);
+            return Ok(result);
         }
-
-        // POST: api/Auth/register
-        [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
+        catch (Exception ex)
         {
-            try
-            {
-                var result = await _authService.RegisterAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                // Trả về lỗi 400 kèm message từ Service (ví dụ: Email đã tồn tại)
-                return BadRequest(new { message = ex.Message });
-            }
+            return BadRequest(new { message = ex.Message });
         }
+    }
 
-        // POST: api/Auth/login
-        [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
         {
-            try
-            {
-                var result = await _authService.LoginAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                // Trả về lỗi 400 nếu sai pass hoặc tài khoản bị khóa
-                return BadRequest(new { message = ex.Message });
-            }
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 }

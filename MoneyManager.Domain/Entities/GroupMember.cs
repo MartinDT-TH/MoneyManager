@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MoneyManager.Domain.Entities;
 
-public partial class GroupMember
+public class GroupMember : BaseSyncEntity
 {
     public Guid GroupId { get; set; }
+    [ForeignKey("GroupId")]
+    public virtual Group? Group { get; set; }
 
     public Guid UserId { get; set; }
+    [ForeignKey("UserId")]
+    public virtual AppUser? User { get; set; }
 
-    public string? Role { get; set; }
-
-    public DateTime? JoinedAt { get; set; }
-
-    public DateTime? LastUpdatedAt { get; set; }
-
-    public bool? IsDeleted { get; set; }
-
-    public virtual Group Group { get; set; } = null!;
-
-    public virtual AppUser User { get; set; } = null!;
+    public string Role { get; set; } = "MEMBER"; // ADMIN, MEMBER
+    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 }

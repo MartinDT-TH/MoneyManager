@@ -13,9 +13,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddScoped<IAuthService, AuthService>();
-
 // 1. DB Context
 builder.Services.AddDbContext<MoneyManagerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
@@ -31,6 +28,8 @@ builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options => {
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -40,10 +39,13 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+// 4. Đăng ký Service (QUAN TRỌNG)
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddControllers(); 
 builder.Services.AddEndpointsApiExplorer();
 
-// 4. Swagger with Auth Button
+// 5. Swagger Config with Auth Button
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MoneyManager API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -51,7 +53,8 @@ builder.Services.AddSwaggerGen(c => {
         In = ParameterLocation.Header,
         Description = "Nhập 'Bearer [Token]'",
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -74,8 +77,7 @@ builder.Services.AddSwaggerGen(c => {
 
 var app = builder.Build();
 
-// === KHU VỰC CHẠY SEED DATA ===
-// Gọi hàm static Initialize vừa tạo
+// === SEED DATA ===
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -95,7 +97,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.MapOpenApi();
+    //app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();

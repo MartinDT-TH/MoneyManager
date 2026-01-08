@@ -3,17 +3,11 @@ using System.Collections.Generic;
 
 namespace MoneyManager.Domain.Entities;
 
-public partial class SystemAuditLog
+public class SystemAuditLog : BaseSystemEntity
 {
-    public Guid Id { get; set; }
-
     public string? ActorId { get; set; }
-
-    public string Action { get; set; } = null!;
-
+    public string Action { get; set; } = string.Empty;
     public string? IpAddress { get; set; }
-
     public string? Details { get; set; }
-
-    public DateTime? Timestamp { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

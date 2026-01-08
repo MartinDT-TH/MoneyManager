@@ -8,109 +8,106 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace MoneyManager.Application.Services
+namespace MoneyManager.Application.Services;
+
+public class AuthService : IAuthService
 {
-    public class AuthService : IAuthService
+    private readonly UserManager<AppUser> _userManager;
+    private readonly IConfiguration _configuration;
+
+    // CHỈ Inject UserManager và IConfiguration. KHÔNG dùng SignInManager.
+    public AuthService(UserManager<AppUser> userManager, IConfiguration configuration)
     {
-        private readonly UserManager<AppUser> _userManager;
-        // Đã xóa SignInManager
-        private readonly IConfiguration _configuration;
+        _userManager = userManager;
+        _configuration = configuration;
+    }
 
-        // Xóa SignInManager trong constructor
-        public AuthService(UserManager<AppUser> userManager,
-                           IConfiguration configuration)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+    {
+        // 1. Check Email tồn tại
+        var existingUser = await _userManager.FindByEmailAsync(request.Email);
+        if (existingUser != null)
+            throw new Exception("Email này đã được sử dụng.");
+
+        // 2. Tạo User mới
+        var user = new AppUser
         {
-            _userManager = userManager;
-            _configuration = configuration;
+            UserName = request.Email,
+            Email = request.Email,
+            FullName = request.FullName,
+            IsActive = true,       // Mặc định Active
+            IsPremium = false,     // Mặc định Free
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var result = await _userManager.CreateAsync(user, request.Password);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new Exception(errors);
         }
 
-        public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+        // 3. Gán quyền Member
+        await _userManager.AddToRoleAsync(user, "Member");
+
+        // 4. Trả về Token luôn
+        return await GenerateJwtToken(user);
+    }
+
+    public async Task<AuthResponse> LoginAsync(LoginRequest request)
+    {
+        // 1. Tìm User
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+            throw new Exception("Tài khoản hoặc mật khẩu không đúng.");
+
+        // 2. Check Password (Dùng UserManager thay vì SignInManager)
+        var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+        if (!isPasswordValid)
+            throw new Exception("Tài khoản hoặc mật khẩu không đúng.");
+
+        // 3. Check Logic nghiệp vụ: Bị Ban thì không cho vào
+        if (!user.IsActive)
+            throw new Exception($"Tài khoản đã bị khóa. Lý do: {user.BanReason}");
+
+        // 4. Sinh Token
+        return await GenerateJwtToken(user);
+    }
+
+    private async Task<AuthResponse> GenerateJwtToken(AppUser user)
+    {
+        var authClaims = new List<Claim>
         {
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
-                throw new Exception("Email đã tồn tại.");
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+            new Claim("FullName", user.FullName ?? ""), // Custom Claim
+            new Claim("IsPremium", user.IsPremium.ToString()), // Custom Claim
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
-            var user = new AppUser
-            {
-                UserName = request.Email,
-                Email = request.Email,
-                FullName = request.FullName,
-                IsActive = true,
-                IsPremium = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var result = await _userManager.CreateAsync(user, request.Password);
-
-            if (!result.Succeeded)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception($"Đăng ký thất bại: {errors}");
-            }
-
-            return await GenerateAuthResponseAsync(user);
+        var userRoles = await _userManager.GetRolesAsync(user);
+        foreach (var role in userRoles)
+        {
+            authClaims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        public async Task<AuthResponse> LoginAsync(LoginRequest request)
+        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
+
+        var token = new JwtSecurityToken(
+            expires: DateTime.UtcNow.AddDays(30), // Token sống 30 ngày cho Mobile App
+            claims: authClaims,
+            signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+        );
+
+        return new AuthResponse
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
-
-            // Kiểm tra User tồn tại
-            if (user == null)
-                throw new Exception("Tài khoản hoặc mật khẩu không đúng.");
-
-            // Kiểm tra Active
-            if (!user.IsActive)
-                throw new Exception("Tài khoản đã bị khóa.");
-
-            // THAY ĐỔI: Dùng CheckPasswordAsync thay vì SignInManager
-            var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-
-            if (!isPasswordValid)
-                throw new Exception("Tài khoản hoặc mật khẩu không đúng.");
-
-            return await GenerateAuthResponseAsync(user);
-        }
-
-        // --- Helper: Tạo JWT Token ---
-        private async Task<AuthResponse> GenerateAuthResponseAsync(AppUser user)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
-                new Claim("FullName", user.FullName ?? ""),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return new AuthResponse
-            {
-                Id = user.Id.ToString(),
-                Email = user.Email ?? "",
-                FullName = user.FullName ?? "",
-                Token = tokenHandler.WriteToken(token),
-                Roles = roles.ToList()
-            };
-        }
+            Id = user.Id.ToString(),
+            Email = user.Email!,
+            FullName = user.FullName!,
+            IsPremium = user.IsPremium,
+            Roles = userRoles.ToList(),
+            Token = new JwtSecurityTokenHandler().WriteToken(token)
+        };
     }
 }

@@ -28,12 +28,21 @@ namespace MoneyManager.Infrastructure.Data
                 // ==================================================
                 // 1. SEED ROLES
                 // ==================================================
-                string[] roleNames = { "Admin", "Member" };
-                foreach (var roleName in roleNames)
+                var roleList = new[]
                 {
-                    if (!await roleManager.RoleExistsAsync(roleName))
+                    new { Name = "Admin", Description = "Quản trị viên hệ thống, có toàn quyền" },
+                    new { Name = "Member", Description = "Người dùng phổ thông, giới hạn quyền theo gói" }
+                };
+
+                foreach (var role in roleList)
+                {
+                    if (!await roleManager.RoleExistsAsync(role.Name))
                     {
-                        await roleManager.CreateAsync(new AppRole { Name = roleName });
+                        await roleManager.CreateAsync(new AppRole
+                        {
+                            Name = role.Name,
+                            Description = role.Description // Map description vào đây
+                        });
                     }
                 }
 
