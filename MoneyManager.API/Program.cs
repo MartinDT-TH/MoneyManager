@@ -24,6 +24,7 @@ builder.Services.AddDbContext<MoneyManagerDbContext>(options =>
 builder.Services.AddIdentity<AppUser, AppRole>()
     .AddEntityFrameworkStores<MoneyManagerDbContext>()
     .AddDefaultTokenProviders();
+
 // 3. Authentication with JWT
 var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:Key"]!);
 builder.Services.AddAuthentication(options => {
