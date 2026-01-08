@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManager.Domain.Entities;
+using MoneyManager.Domain.Enums;
 using MoneyManager.Infrastructure.Data.Context;
 
 namespace MoneyManager.Infrastructure.Data
@@ -103,18 +104,18 @@ namespace MoneyManager.Infrastructure.Data
                 var categories = new List<Category>
                 {
                     // EXPENSE
-                    new Category { Name = "Ăn uống", Type = "EXPENSE", IconCode = "fastfood", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Di chuyển", Type = "EXPENSE", IconCode = "commute", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Mua sắm", Type = "EXPENSE", IconCode = "shopping_cart", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Giải trí", Type = "EXPENSE", IconCode = "movie", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Sức khỏe", Type = "EXPENSE", IconCode = "medical_services", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Hóa đơn", Type = "EXPENSE", IconCode = "receipt", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Ăn uống", Type = CategoryType.Expense, IconCode = "fastfood", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Di chuyển", Type = CategoryType.Expense, IconCode = "commute", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Mua sắm", Type = CategoryType.Expense, IconCode = "shopping_cart", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Giải trí", Type = CategoryType.Expense, IconCode = "movie", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Sức khỏe", Type = CategoryType.Expense, IconCode = "medical_services", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Hóa đơn", Type = CategoryType.Expense, IconCode = "receipt", CreatedAt = DateTime.UtcNow },
                     
                     // INCOME
-                    new Category { Name = "Lương", Type = "INCOME", IconCode = "payments", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Thưởng", Type = "INCOME", IconCode = "card_giftcard", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Đầu tư", Type = "INCOME", IconCode = "trending_up", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Khác", Type = "INCOME", IconCode = "more_horiz", CreatedAt = DateTime.UtcNow }
+                    new Category { Name = "Lương", Type = CategoryType.Income, IconCode = "payments", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Thưởng", Type = CategoryType.Income, IconCode = "card_giftcard", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Đầu tư", Type = CategoryType.Income, IconCode = "trending_up", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Khác", Type = CategoryType.Income, IconCode = "more_horiz", CreatedAt = DateTime.UtcNow }
                 };
                 context.Categories.AddRange(categories);
                 await context.SaveChangesAsync(); // Save để lấy ID Category dùng bên dưới
@@ -161,9 +162,9 @@ namespace MoneyManager.Infrastructure.Data
                 var groupMembers = new List<GroupMember>
                 {
                     // Premium User là Admin nhóm
-                    new GroupMember { GroupId = familyGroup.Id, UserId = premiumUser.Id, Role = "ADMIN", JoinedAt = DateTime.UtcNow },
+                    new GroupMember { GroupId = familyGroup.Id, UserId = premiumUser.Id, Role = GroupRole.Admin, JoinedAt = DateTime.UtcNow },
                     // Free User là Member
-                    new GroupMember { GroupId = familyGroup.Id, UserId = freeUser.Id, Role = "MEMBER", JoinedAt = DateTime.UtcNow }
+                    new GroupMember { GroupId = familyGroup.Id, UserId = freeUser.Id, Role = GroupRole.Member, JoinedAt = DateTime.UtcNow }
                 };
                 context.GroupMembers.AddRange(groupMembers);
 

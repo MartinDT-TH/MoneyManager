@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,10 +14,10 @@ public class SubscriptionLog : BaseSystemEntity
     public string ProductId { get; set; } = string.Empty;
     public string? StoreTransactionId { get; set; }
     public string? OriginalTransactionId { get; set; }
-    public string Platform { get; set; } = "ANDROID"; // ANDROID, IOS
+    public SubscriptionPlatform Platform { get; set; } = SubscriptionPlatform.GooglePlay;
     public decimal Amount { get; set; }
-    public string Currency { get; set; } = "VND";
-    public string Status { get; set; } = "SUCCESS";
+    public CurrencyCode Currency { get; set; } = CurrencyCode.VND;
+    public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Success;
     public DateTime PurchaseDate { get; set; }
     public DateTime ExpiryDate { get; set; }
 }

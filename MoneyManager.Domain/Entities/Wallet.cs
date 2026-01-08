@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,9 +7,11 @@ namespace MoneyManager.Domain.Entities;
 
 public partial class Wallet : BaseSyncEntity
 {
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
+
+    [Column(TypeName = "decimal(18, 2)")]
     public decimal? Balance { get; set; }
-    public string? Currency { get; set; }
+    public CurrencyCode Currency { get; set; } = CurrencyCode.VND;
 
     public string Type { get; set; } = null!;
 
