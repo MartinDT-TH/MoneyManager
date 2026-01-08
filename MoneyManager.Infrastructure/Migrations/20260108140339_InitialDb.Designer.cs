@@ -12,7 +12,7 @@ using MoneyManager.Infrastructure.Data.Context;
 namespace MoneyManager.Infrastructure.Migrations
 {
     [DbContext(typeof(MoneyManagerDbContext))]
-    [Migration("20260108084741_InitialDb")]
+    [Migration("20260108140339_InitialDb")]
     partial class InitialDb
     {
         /// <inheritdoc />
@@ -138,6 +138,9 @@ namespace MoneyManager.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -177,10 +180,10 @@ namespace MoneyManager.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -256,8 +259,7 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("AmountLimit")
                         .HasColumnType("decimal(18, 2)");
@@ -265,23 +267,17 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime");
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
@@ -289,14 +285,11 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
-                    b.HasKey("Id")
-                        .HasName("PK__Budgets__3214EC07B4DE664E");
+                    b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex(new[] { "LastUpdatedAt" }, "IX_Budgets_Sync");
 
                     b.ToTable("Budgets");
                 });
@@ -305,32 +298,26 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("IconCode")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uniqueidentifier");
@@ -343,14 +330,11 @@ namespace MoneyManager.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("Id")
-                        .HasName("PK__Categori__3214EC0765924173");
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
                     b.HasIndex("ParentId");
-
-                    b.HasIndex(new[] { "LastUpdatedAt" }, "IX_Categories_Sync");
 
                     b.ToTable("Categories");
                 });
@@ -359,47 +343,36 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InviteCode")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("Id")
-                        .HasName("PK__Groups__3214EC079354EDBB");
+                    b.HasKey("Id");
 
                     b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex(new[] { "LastUpdatedAt" }, "IX_Groups_Sync");
 
                     b.ToTable("Groups");
                 });
@@ -412,33 +385,31 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("JoinedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("LastUpdatedAt")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Role")
-                        .ValueGeneratedOnAdd()
+                        .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("MEMBER");
+                        .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("GroupId", "UserId")
-                        .HasName("PK__GroupMem__C5E27FAE13B55CBC");
+                    b.HasKey("GroupId", "UserId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex(new[] { "LastUpdatedAt" }, "IX_GroupMembers_Sync");
 
                     b.ToTable("GroupMembers");
                 });
@@ -447,29 +418,24 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Currency")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasDefaultValue("VND");
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("OriginalTransactionId")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Platform")
                         .IsRequired()
@@ -478,11 +444,10 @@ namespace MoneyManager.Infrastructure.Migrations
 
                     b.Property<string>("ProductId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -490,14 +455,12 @@ namespace MoneyManager.Infrastructure.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("StoreTransactionId")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id")
-                        .HasName("PK__Subscrip__3214EC07F0D370C8");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -508,32 +471,30 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Action")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ActorId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Details")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IpAddress")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Timestamp")
+                    b.Property<DateTime>("Timestamp")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.HasKey("Id")
-                        .HasName("PK__SystemAu__3214EC07B7878954");
+                    b.HasKey("Id");
 
                     b.ToTable("SystemAuditLogs");
                 });
@@ -542,8 +503,7 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18, 2)");
@@ -554,23 +514,19 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Note")
                         .HasMaxLength(500)
@@ -585,16 +541,13 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.Property<Guid>("WalletId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id")
-                        .HasName("PK__Transact__3214EC077F01875D");
+                    b.HasKey("Id");
 
-                    b.HasIndex(new[] { "CategoryId" }, "IX_Transactions_CategoryId");
+                    b.HasIndex("CategoryId");
 
-                    b.HasIndex(new[] { "GroupId" }, "IX_Transactions_GroupId");
+                    b.HasIndex("GroupId");
 
-                    b.HasIndex(new[] { "LastUpdatedAt" }, "IX_Transactions_Sync");
-
-                    b.HasIndex(new[] { "WalletId" }, "IX_Transactions_WalletId");
+                    b.HasIndex("WalletId");
 
                     b.ToTable("Transactions");
                 });
@@ -603,39 +556,32 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("Balance")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18, 2)")
                         .HasDefaultValue(0m);
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Currency")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasDefaultValue("VND");
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
@@ -645,12 +591,9 @@ namespace MoneyManager.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("Id")
-                        .HasName("PK__Wallets__3214EC0766A9C84E");
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex(new[] { "LastUpdatedAt" }, "IX_Wallets_Sync");
 
                     b.ToTable("Wallets");
                 });
@@ -711,14 +654,14 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
                         .WithMany("Budgets")
                         .HasForeignKey("CategoryId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Budgets__Categor__68487DD7");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("MoneyManager.Domain.Entities.AppUser", "Owner")
                         .WithMany("Budgets")
                         .HasForeignKey("OwnerId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Budgets__OwnerId__693CA210");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -729,13 +672,11 @@ namespace MoneyManager.Infrastructure.Migrations
                 {
                     b.HasOne("MoneyManager.Domain.Entities.AppUser", "Owner")
                         .WithMany("Categories")
-                        .HasForeignKey("OwnerId")
-                        .HasConstraintName("FK__Categorie__Owner__52593CB8");
+                        .HasForeignKey("OwnerId");
 
                     b.HasOne("MoneyManager.Domain.Entities.Category", "Parent")
                         .WithMany("InverseParent")
-                        .HasForeignKey("ParentId")
-                        .HasConstraintName("FK__Categorie__Paren__5165187F");
+                        .HasForeignKey("ParentId");
 
                     b.Navigation("Owner");
 
@@ -745,10 +686,9 @@ namespace MoneyManager.Infrastructure.Migrations
             modelBuilder.Entity("MoneyManager.Domain.Entities.Group", b =>
                 {
                     b.HasOne("MoneyManager.Domain.Entities.AppUser", "CreatedByUser")
-                        .WithMany("Groups")
+                        .WithMany("CreatedGroups")
                         .HasForeignKey("CreatedByUserId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Groups__CreatedB__59063A47");
+                        .IsRequired();
 
                     b.Navigation("CreatedByUser");
                 });
@@ -758,14 +698,14 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.HasOne("MoneyManager.Domain.Entities.Group", "Group")
                         .WithMany("GroupMembers")
                         .HasForeignKey("GroupId")
-                        .IsRequired()
-                        .HasConstraintName("FK__GroupMemb__Group__6FE99F9F");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("MoneyManager.Domain.Entities.AppUser", "User")
                         .WithMany("GroupMembers")
                         .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("FK__GroupMemb__UserI__70DDC3D8");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Group");
 
@@ -777,8 +717,8 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.HasOne("MoneyManager.Domain.Entities.AppUser", "User")
                         .WithMany("SubscriptionLogs")
                         .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Subscript__UserI__76969D2E");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -788,19 +728,18 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
                         .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Transacti__Categ__60A75C0F");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("MoneyManager.Domain.Entities.Group", "Group")
                         .WithMany("Transactions")
-                        .HasForeignKey("GroupId")
-                        .HasConstraintName("FK__Transacti__Group__619B8048");
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("MoneyManager.Domain.Entities.Wallet", "Wallet")
                         .WithMany("Transactions")
                         .HasForeignKey("WalletId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Transacti__Walle__5FB337D6");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -814,8 +753,8 @@ namespace MoneyManager.Infrastructure.Migrations
                     b.HasOne("MoneyManager.Domain.Entities.AppUser", "Owner")
                         .WithMany("Wallets")
                         .HasForeignKey("OwnerId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Wallets__OwnerId__4AB81AF0");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Owner");
                 });
@@ -826,9 +765,9 @@ namespace MoneyManager.Infrastructure.Migrations
 
                     b.Navigation("Categories");
 
-                    b.Navigation("GroupMembers");
+                    b.Navigation("CreatedGroups");
 
-                    b.Navigation("Groups");
+                    b.Navigation("GroupMembers");
 
                     b.Navigation("SubscriptionLogs");
 

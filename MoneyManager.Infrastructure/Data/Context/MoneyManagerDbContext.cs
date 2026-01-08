@@ -53,7 +53,7 @@ public partial class MoneyManagerDbContext : IdentityDbContext<AppUser, AppRole,
             // Type là String -> User tự nhập (Tiền mặt, Hụi, Bitcoin...) -> Không convert
             entity.Property(e => e.Type).HasMaxLength(50);
 
-            entity.Property(e => e.Balance).HasColumnType("decimal(18, 2)").HasDefaultValue(0);
+            entity.Property(e => e.Balance).HasColumnType("decimal(18, 2)").HasDefaultValue(0m);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
         });
 
