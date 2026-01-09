@@ -8,8 +8,23 @@ using MoneyManager.Application.Services;
 using MoneyManager.Domain.Entities;
 using MoneyManager.Infrastructure.Data;
 using MoneyManager.Infrastructure.Data.Context;
+using MoneyManager.Infrastructure.Services;
 using System.Text;
 
+// --- CẤU HÌNH GOOGLE CREDENTIALS ---
+// Lấy đường dẫn file nằm cùng thư mục với ứng dụng đang chạy
+string credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "moneymanager-ocr.json");// google - credentials.json
+
+// Kiểm tra xem file có thật sự tồn tại không (để debug lỗi)
+if (!File.Exists(credentialPath))
+{
+    Console.WriteLine($"WARNING: Không tìm thấy file key tại: {credentialPath}");
+}
+
+// Set biến môi trường để thư viện Google tự nhận diện
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
+
+// ------------------------------------
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +54,20 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
-// 4. Đăng ký Service (QUAN TRỌNG)
+// 4. REGISTER CUSTOM SERVICES
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
+builder.Services.AddScoped<ISmartInsightService, SmartInsightService>();
+builder.Services.AddScoped<ISpendingForecaster, SpendingForecaster>();
+// 1. Register ML Service as Singleton
+// Reason: Training the model is expensive; we only want to do it once at startup.
+// PredictionEngine is not thread-safe, so for high concurrency, you might need ObjectPool, 
+// but for this MVP, Singleton with a lock or transient engine creation is acceptable.
+builder.Services.AddSingleton<ICategorizationService, SmartCategorizationService>();
+
+// 2. Register OCR Service
+builder.Services.AddScoped<IBillScanningService, GoogleCloudBillScanningService>();
+
 
 builder.Services.AddControllers(); 
 builder.Services.AddEndpointsApiExplorer();

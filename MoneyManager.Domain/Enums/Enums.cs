@@ -1,6 +1,6 @@
 ﻿namespace MoneyManager.Domain.Enums;
 
-// Loại ví
+// Loại ví - Ver 2 sẽ dùng enum này
 //public enum WalletType
 //{
 //    Cash,       // Tiền mặt
