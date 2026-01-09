@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,7 +9,7 @@ public partial class Category : BaseSyncEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? IconCode { get; set; }
-    public string Type { get; set; } = "EXPENSE"; // INCOME, EXPENSE
+    public CategoryType Type { get; set; } = CategoryType.Expense;
 
     public Guid? ParentId { get; set; }// Danh mục cha con
     [ForeignKey("ParentId")]

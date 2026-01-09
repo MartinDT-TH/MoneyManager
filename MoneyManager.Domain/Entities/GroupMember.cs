@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,6 +15,6 @@ public class GroupMember : BaseSyncEntity
     [ForeignKey("UserId")]
     public virtual AppUser? User { get; set; }
 
-    public string Role { get; set; } = "MEMBER"; // ADMIN, MEMBER
+    public GroupRole Role { get; set; } = GroupRole.Member;
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManager.Domain.Entities;
+using MoneyManager.Domain.Enums;
 using MoneyManager.Infrastructure.Data.Context;
 
 namespace MoneyManager.Infrastructure.Data
@@ -103,25 +104,29 @@ namespace MoneyManager.Infrastructure.Data
                 var categories = new List<Category>
                 {
                     // EXPENSE
-                    new Category { Name = "Ăn uống", Type = "EXPENSE", IconCode = "fastfood", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Di chuyển", Type = "EXPENSE", IconCode = "commute", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Mua sắm", Type = "EXPENSE", IconCode = "shopping_cart", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Giải trí", Type = "EXPENSE", IconCode = "movie", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Sức khỏe", Type = "EXPENSE", IconCode = "medical_services", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Hóa đơn", Type = "EXPENSE", IconCode = "receipt", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Ăn uống", Type = CategoryType.Expense, IconCode = "fastfood", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Di chuyển", Type = CategoryType.Expense, IconCode = "commute", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Mua sắm", Type = CategoryType.Expense, IconCode = "shopping_cart", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Giải trí", Type = CategoryType.Expense, IconCode = "movie", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Sức khỏe", Type = CategoryType.Expense, IconCode = "medical_services", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Hóa đơn", Type = CategoryType.Expense, IconCode = "receipt", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Giáo dục", Type = CategoryType.Expense, IconCode = "school", CreatedAt = DateTime.UtcNow },
                     
                     // INCOME
-                    new Category { Name = "Lương", Type = "INCOME", IconCode = "payments", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Thưởng", Type = "INCOME", IconCode = "card_giftcard", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Đầu tư", Type = "INCOME", IconCode = "trending_up", CreatedAt = DateTime.UtcNow },
-                    new Category { Name = "Khác", Type = "INCOME", IconCode = "more_horiz", CreatedAt = DateTime.UtcNow }
+                    new Category { Name = "Lương", Type = CategoryType.Income, IconCode = "payments", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Thưởng", Type = CategoryType.Income, IconCode = "card_giftcard", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Đầu tư", Type = CategoryType.Income, IconCode = "trending_up", CreatedAt = DateTime.UtcNow },
+                    new Category { Name = "Khác", Type = CategoryType.Income, IconCode = "more_horiz", CreatedAt = DateTime.UtcNow }
                 };
                 context.Categories.AddRange(categories);
                 await context.SaveChangesAsync(); // Save để lấy ID Category dùng bên dưới
 
-                // Lấy ID category để dùng cho Transaction
-                var foodCat = categories.First(c => c.Name == "Ăn uống");
+                // Lấy các list category để dùng random bên dưới
+                var expenseCats = categories.Where(c => c.Type == CategoryType.Expense).ToList();
+                var incomeCats = categories.Where(c => c.Type == CategoryType.Income).ToList();
+
                 var salaryCat = categories.First(c => c.Name == "Lương");
+                var foodCat = categories.First(c => c.Name == "Ăn uống");
                 var shoppingCat = categories.First(c => c.Name == "Mua sắm");
 
                 // ==================================================
@@ -161,9 +166,9 @@ namespace MoneyManager.Infrastructure.Data
                 var groupMembers = new List<GroupMember>
                 {
                     // Premium User là Admin nhóm
-                    new GroupMember { GroupId = familyGroup.Id, UserId = premiumUser.Id, Role = "ADMIN", JoinedAt = DateTime.UtcNow },
+                    new GroupMember { GroupId = familyGroup.Id, UserId = premiumUser.Id, Role = GroupRole.Admin, JoinedAt = DateTime.UtcNow },
                     // Free User là Member
-                    new GroupMember { GroupId = familyGroup.Id, UserId = freeUser.Id, Role = "MEMBER", JoinedAt = DateTime.UtcNow }
+                    new GroupMember { GroupId = familyGroup.Id, UserId = freeUser.Id, Role = GroupRole.Member, JoinedAt = DateTime.UtcNow }
                 };
                 context.GroupMembers.AddRange(groupMembers);
 
@@ -185,14 +190,15 @@ namespace MoneyManager.Infrastructure.Data
                 // 7. SEED TRANSACTIONS (Giao dịch) - Tạo nhiều data cho biểu đồ
                 // ==================================================
                 var transactions = new List<Transaction>();
+                var rnd = new Random();
 
                 // 7.1 Giao dịch cho User Free (30 giao dịch)
-                // Tạo data cho tháng này và tháng trước
                 for (int i = 0; i < 30; i++)
                 {
                     var isExpense = i % 3 != 0; // 2/3 là chi tiêu
-                    var amount = isExpense ? new Random().Next(30, 200) * 1000 : new Random().Next(5000, 10000) * 1000;
-                    var date = DateTime.UtcNow.AddDays(-i); // Rải rác từ hôm nay về quá khứ
+                    // Logic: Income dương, Expense âm (để đồng nhất logic thống kê)
+                    var amount = isExpense ? -(rnd.Next(30, 200) * 1000) : (rnd.Next(5000, 10000) * 1000);
+                    var date = DateTime.UtcNow.AddDays(-i);// Rải rác từ hôm nay về quá khứ
 
                     transactions.Add(new Transaction
                     {
@@ -209,7 +215,7 @@ namespace MoneyManager.Infrastructure.Data
                 // 7.2 Giao dịch Nhóm (User Premium trả tiền ăn cho cả nhóm)
                 transactions.Add(new Transaction
                 {
-                    Amount = 1500000,
+                    Amount = -1500000, // Chi tiêu là số âm
                     Note = "Ăn nhà hàng cuối tuần (Quỹ nhóm)",
                     TransactionDate = DateTime.UtcNow.AddDays(-2),
                     WalletId = premiumUserWallet.Id, // Tiền trừ ví Premium
@@ -218,6 +224,102 @@ namespace MoneyManager.Infrastructure.Data
                     CreatedAt = DateTime.UtcNow,
                     LastUpdatedAt = DateTime.UtcNow
                 });
+
+                // ====================================================================================
+                // 7.3 [NEW] SEED DATA PREMIUM USER - 12 THÁNG GẦN NHẤT
+                // ====================================================================================
+
+                // Lặp qua 12 tháng (từ 12 tháng trước đến tháng hiện tại)
+                for (int m = 12; m >= 0; m--)
+                {
+                    var currentMonthDate = DateTime.UtcNow.AddMonths(-m);
+                    var year = currentMonthDate.Year;
+                    var month = currentMonthDate.Month;
+                    var daysInMonth = DateTime.DaysInMonth(year, month);
+
+                    // A. THU NHẬP (Lương cứng hàng tháng) - Ngày mùng 5
+                    var salaryDate = new DateTime(year, month, Math.Min(5, daysInMonth), 9, 0, 0);
+                    transactions.Add(new Transaction
+                    {
+                        Amount = 45000000, // Lương 45 triệu
+                        Note = $"Lương tháng {month}/{year}",
+                        TransactionDate = salaryDate,
+                        WalletId = premiumUserWallet.Id,
+                        CategoryId = salaryCat.Id,
+                        CreatedAt = salaryDate,
+                        LastUpdatedAt = salaryDate
+                    });
+
+                    // B. THU NHẬP PHỤ (Thỉnh thoảng có thưởng) - Xác suất 30%
+                    if (rnd.NextDouble() > 0.7)
+                    {
+                        var bonusDate = new DateTime(year, month, rnd.Next(15, 25), 10, 0, 0);
+                        transactions.Add(new Transaction
+                        {
+                            Amount = rnd.Next(2000, 10000) * 1000,
+                            Note = "Thưởng dự án / Đầu tư",
+                            TransactionDate = bonusDate,
+                            WalletId = premiumUserWallet.Id,
+                            CategoryId = incomeCats.First(c => c.Name == "Thưởng" || c.Name == "Đầu tư").Id,
+                            CreatedAt = bonusDate,
+                            LastUpdatedAt = bonusDate
+                        });
+                    }
+
+                    // C. CHI TIÊU HÀNG NGÀY (Random 40 - 60 giao dịch mỗi tháng)
+                    int transactionCount = rnd.Next(40, 60);
+                    for (int t = 0; t < transactionCount; t++)
+                    {
+                        // Random ngày giờ
+                        var day = rnd.Next(1, daysInMonth + 1);
+                        var hour = rnd.Next(7, 23); // Từ 7h sáng đến 11h đêm
+                        var minute = rnd.Next(0, 60);
+                        var txDate = new DateTime(year, month, day, hour, minute, 0);
+
+                        // Random Category chi tiêu
+                        var randomCat = expenseCats[rnd.Next(expenseCats.Count)];
+
+                        // Random Số tiền (Dựa theo loại category cho thực tế)
+                        decimal amount = 0;
+                        string notePrefix = "";
+
+                        switch (randomCat.Name)
+                        {
+                            case "Ăn uống":
+                                amount = rnd.Next(35, 500) * 1000; // 35k - 500k
+                                notePrefix = "Ăn";
+                                break;
+                            case "Di chuyển":
+                                amount = rnd.Next(20, 100) * 1000; // 20k - 100k
+                                notePrefix = "Grab/Xăng";
+                                break;
+                            case "Mua sắm":
+                                amount = rnd.Next(200, 3000) * 1000; // 200k - 3tr
+                                notePrefix = "Shopee/Siêu thị";
+                                break;
+                            case "Hóa đơn":
+                                // Hóa đơn thường chỉ 1-2 lần, nhưng ở đây random đại
+                                amount = rnd.Next(500, 2000) * 1000;
+                                notePrefix = "Điện/Nước/Net";
+                                break;
+                            default:
+                                amount = rnd.Next(50, 500) * 1000;
+                                notePrefix = "Chi tiêu";
+                                break;
+                        }
+
+                        transactions.Add(new Transaction
+                        {
+                            Amount = -amount, // SỐ ÂM CHO CHI TIÊU
+                            Note = $"{notePrefix} - {randomCat.Name}",
+                            TransactionDate = txDate,
+                            WalletId = premiumUserWallet.Id,
+                            CategoryId = randomCat.Id,
+                            CreatedAt = txDate,
+                            LastUpdatedAt = txDate
+                        });
+                    }
+                }
 
                 context.Transactions.AddRange(transactions);
                 await context.SaveChangesAsync();

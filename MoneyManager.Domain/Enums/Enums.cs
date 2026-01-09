@@ -1,13 +1,13 @@
 ﻿namespace MoneyManager.Domain.Enums;
 
-// Loại ví
-public enum WalletType
-{
-    Cash,       // Tiền mặt
-    BankAccount,// Ngân hàng
-    CreditCard, // Thẻ tín dụng
-    EWallet     // Ví điện tử (Momo, ZaloPay...)
-}
+// Loại ví - Ver 2 sẽ dùng enum này
+//public enum WalletType
+//{
+//    Cash,       // Tiền mặt
+//    BankAccount,// Ngân hàng
+//    CreditCard, // Thẻ tín dụng
+//    EWallet     // Ví điện tử (Momo, ZaloPay...)
+//}
 
 // Loại danh mục (Thu/Chi)
 public enum CategoryType
@@ -37,4 +37,16 @@ public enum SubscriptionStatus
     Expired,    // Hết hạn
     Refunded,   // Đã hoàn tiền
     Cancelled   // Đã hủy
+}
+
+public enum CurrencyCode
+{
+    VND, // Việt Nam Đồng
+    USD, // Đô la Mỹ
+    EUR, // Euro
+    JPY, // Yên Nhật
+    GBP, // Bảng Anh
+    AUD, // Đô la Úc
+    SGD  // Đô la Singapore
+    // Thêm các loại tiền khác nếu cần
 }
